@@ -1,7 +1,10 @@
 #include <LiquidCrystal.h>
+#include <Servo.h>
+
+Servo myServo;
 
 //Botões
-const int buttons[] = { 11, 12, 13};                             //Definição dos pinos de cada botão
+const int buttons[] = { 11, 12, 13};                              //Definição dos pinos de cada botão
 const int numButtons = sizeof(buttons) / sizeof(buttons[0]);      //Definir quantidade de botões utilizados
 bool stateButton[numButtons];                                     //Flag do estado de cada botão
 //Debounce botões
@@ -16,17 +19,24 @@ const char* menuItems[] = {                                       //Itens do Men
   "2 - Distancia",
   "3 - Motor"
   };
-const int menuSize = sizeof(menuItems)/sizeof(menuItems[0]);       //Quantidade de itens no Menu
-bool menuActive = false;                                           //Argumento para funcionalidades dentro de cada opção do menu
+const int menuSize = sizeof(menuItems)/sizeof(menuItems[0]);      //Quantidade de itens no Menu
+bool menuActive = false;                                          //Argumento para funcionalidades dentro de cada opção do menu
 
 //LED
-const int led = A0;                                                //LED conectado no pino A0
-bool ledState = false;                                             //Estado inicial do LED
+const int led = A0;                                               //LED conectado no pino A0
+bool ledState = false;                                            //Estado inicial do LED
 
 //LCD
 LiquidCrystal lcd(2, 3, 6, 7, 8, 9);
 
+//Sensor de distância
+const int trigPin = A3;
+const int echoPin = A2;
+long duration;
+int distance;
+bool inDistance = false;
 
+//--------------------------------------------------------------------------------------------------------------------------------------------
 void setup() {
   for (int i = 0; i < numButtons; i++){
       pinMode(buttons[i], INPUT_PULLUP);
@@ -34,14 +44,23 @@ void setup() {
 
   pinMode(led, OUTPUT);
 
+//Configura Sensor
+  pinMode(echoPin, INPUT);
+  pinMode(trigPin, OUTPUT);
+
 //Configuração inicial do lcd
   lcd.begin(16, 2);
   lcd.setCursor(0, 0);
   lcd.print("Inicializando...");
-  delay(1000);
+  delay(2000);
   displayMenu();
+
+//Configuração Servo Motor
+  myServo.attach(A5);                                             //Pino conectado
+  myServo.write(0);                                               //Posição Inicial
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void loop() {
   readButtons();
 
@@ -59,12 +78,30 @@ void loop() {
     if(stateButton[2]){ buttonRight(); }
   }
 
+  if(inDistance == true){
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    duration = pulseIn(echoPin, HIGH);
+    distance = duration * 0.034 / 2;
+
+    lcd.setCursor(0, 0);
+    lcd.print("Distancia Mode");
+    lcd.setCursor(0, 1);
+    lcd.print(distance);
+    lcd.print("cm");
+  }
+
 //Limpar a flag de cada botão
   for(int i = 0; i < numButtons; i++){
     stateButton[i] = 0;
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void readButtons() {
   for (int i = 0; i < numButtons; i++) {
     bool reading = digitalRead(buttons[i]);
@@ -80,6 +117,7 @@ void readButtons() {
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void buttonUp(){
   menuIndex--;
   if(menuIndex < 0){
@@ -88,6 +126,7 @@ void buttonUp(){
   displayMenu();
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void buttonDown(){
   menuIndex++;
   if(menuIndex >= menuSize){
@@ -96,32 +135,35 @@ void buttonDown(){
   displayMenu();
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void buttonLeft(){
   if(menuIndex == 0){
     ledState = false;
     digitalWrite (led, LOW);
   }
   if(menuIndex == 1){
-
+    return;
   }
   if(menuIndex == 2){
-
+    myServo.write(0);
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void buttonRight(){
   if(menuIndex == 0){
     ledState = true;
     digitalWrite (led, HIGH);
   }
   if(menuIndex == 1){
-
+    return;
   }
   if(menuIndex == 2){
-
+    myServo.write(180);
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void menuSelected() {
   if (!menuActive) {
     menuActive = true;
@@ -129,7 +171,7 @@ void menuSelected() {
       displayLED();
     }
     else if(menuIndex == 1){
-      displayDistance();
+      inDistance = true;
     }
     else if(menuIndex == 2){
       displayMotor();
@@ -137,10 +179,12 @@ void menuSelected() {
   } else {
     // If already in submenu, pressing SELECT returns to main menu
     menuActive = false;
+    inDistance = false;
     displayMenu();
   }
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void displayMenu(){
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -149,6 +193,7 @@ void displayMenu(){
   lcd.print(menuItems[menuIndex]);
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void displayLED(){
   lcd.clear();
   lcd.setCursor(0, 0);
@@ -157,14 +202,29 @@ void displayLED(){
   lcd.print("OFF/ON");
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void displayDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2;
+
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Distancia Mode");
+  lcd.setCursor(0, 1);
+  lcd.print(distance);
+  lcd.print("cm");
 }
 
+//--------------------------------------------------------------------------------------------------------------------------------------
 void displayMotor() {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Motor Mode");
+  lcd.setCursor(0, 1);
 }
