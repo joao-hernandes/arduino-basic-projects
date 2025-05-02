@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "sensor")(type "KiCad")(uri "C:/Users/João/Documents/GitHub/arduino-basic-projects/lcd_menu/lcd_menu/sensor.kicad_sym")(options "")(descr ""))
+)
