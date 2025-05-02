@@ -10,7 +10,7 @@ bool stateButton[numButtons];                                     //Flag do esta
 //Debounce botões
 bool lastState[] = {HIGH, HIGH, HIGH};                            //Iniciar o estado anterior de cada botão como alto
 unsigned long lastDebounceTime[numButtons] = {0};
-const unsigned long debounceDelay = 50;
+const unsigned long debounceDelay = 90;
 
 //Menu
 int menuIndex = 0;                                                //Index utilizado para definir qual item será exibido no lcd
@@ -37,7 +37,7 @@ int distance;
 bool inDistance = false;
 bool isFirstTime = false;                                         //Primeira vez que exibi no menu
 unsigned long lastShow = 0;                                       //Variavel para armazenar tempo entre cada exibição do sensor de distancia
-const unsigned long showDelay = 1000;                              //Espaço para amostragem do sensor
+const unsigned long showDelay = 1000;                             //Espaço para amostragem do sensor
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void setup() {
