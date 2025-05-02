@@ -35,6 +35,9 @@ const int echoPin = A2;
 long duration;
 int distance;
 bool inDistance = false;
+bool isFirstTime = false;                                         //Primeira vez que exibi no menu
+unsigned long lastShow = 0;                                       //Variavel para armazenar tempo entre cada exibição do sensor de distancia
+const unsigned long showDelay = 1000;                              //Espaço para amostragem do sensor
 
 //--------------------------------------------------------------------------------------------------------------------------------------------
 void setup() {
@@ -79,6 +82,11 @@ void loop() {
   }
 
   if(inDistance == true){
+    if(isFirstTime){
+      lcd.clear();
+      isFirstTime = false;
+    }
+
     digitalWrite(trigPin, LOW);
     delayMicroseconds(2);
     digitalWrite(trigPin, HIGH);
@@ -90,9 +98,14 @@ void loop() {
 
     lcd.setCursor(0, 0);
     lcd.print("Distancia Mode");
-    lcd.setCursor(0, 1);
-    lcd.print(distance);
-    lcd.print("cm");
+
+    if(millis() - lastShow > showDelay){
+      lcd.setCursor(0, 1);
+      lcd.print(distance);
+      lcd.print(" cm ");
+
+      lastShow = millis();
+    }
   }
 
 //Limpar a flag de cada botão
@@ -172,6 +185,7 @@ void menuSelected() {
     }
     else if(menuIndex == 1){
       inDistance = true;
+      isFirstTime = true;
     }
     else if(menuIndex == 2){
       displayMotor();
@@ -215,7 +229,7 @@ void displayDistance() {
 
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Distancia Mode");
+  lcd.print("Modo Distancia");
   lcd.setCursor(0, 1);
   lcd.print(distance);
   lcd.print("cm");
@@ -225,6 +239,7 @@ void displayDistance() {
 void displayMotor() {
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("Motor Mode");
+  lcd.print("Modo Motor");
   lcd.setCursor(0, 1);
+  lcd.print("0/180");
 }
