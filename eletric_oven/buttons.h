@@ -15,7 +15,7 @@ extern volatile bool flagDown;
 
 //Funções de Setup
 void setupButtons();
-void buttonsHandles();
+void buttonsHandle();
 
 //Funções de Interrupção
 void upISR();

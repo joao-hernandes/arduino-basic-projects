@@ -1,3 +1,4 @@
+#include "timer.h"
 #include "buttons.h"
 #include "lcdmenu.h"
 
@@ -9,16 +10,15 @@ enum State {
     STATE_FAN,
     STATE_SERIAL,
     STATE_RUN};
-State currentState = STATE_MENU;
-
-//Timer
+State currentState = STATE_MENU;                              //Estado inicial
 
 //Temperatura
 
 //LED
-const byte ledPin = A5;
+const byte ledPin = A5;                                       //Pino do LED
 
 void setup() {
+  setupTimer1();                                              //Função de Setup do Timer 1
   setupButtons();                                             //Função de setup dos botões
   setupMenu();                                                //Função de setup do lcd
   pinMode(ledPin, OUTPUT);                                    //Declaração do pino do led como saida
@@ -33,7 +33,7 @@ void loop() {
     break;
 
     case STATE_TIMER:
-      showMenu();
+      showTimer();
     break;
 
     case STATE_TEMPERATURE:
@@ -45,11 +45,12 @@ void loop() {
     break;
 
     case STATE_SERIAL:
-      showMenu();
+      showSerial();
     break;
 
     case STATE_RUN:
       digitalWrite(ledPin, HIGH);
+      TIMSK1 |= (1 << OCIE1A);                                //Set bit OCIE1A do registrador TIMSK1, inicializando a contagem do Timer 1
       showRun();
     break;
   }
@@ -65,6 +66,18 @@ void buttonsHandle(){
         if (menuIndex >= menuQnt) menuIndex = 0;
     }
     if(currentState == STATE_TIMER){
+      if(setMinutes < 50){
+        setMinutes += 10;
+      }
+      else{
+        setMinutes = 0;
+        if(setHours < 23){
+          setHours++;
+        }
+        else{setHours = 0;}
+      }
+    }
+    if (currentState == STATE_RUN) {
 
     }
   }
@@ -76,7 +89,10 @@ void buttonsHandle(){
     if(currentState == STATE_MENU){
       currentState = static_cast<State>(menuIndex + 1);
     }
-
+    else if(currentState == STATE_TIMER){
+      setCountdown();
+      currentState = STATE_MENU;
+    }
     else {currentState = STATE_MENU;} //Voltar pro menu de seleção
   }
 

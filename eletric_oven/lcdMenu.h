@@ -10,7 +10,9 @@ extern const byte menuQnt;
 
 void setupMenu();
 void showMenu();
+void showTimer();
 void showTemp();
+void showSerial();
 void showRun();
 
 #endif
