@@ -1,6 +1,7 @@
 #include "timer.h"
 #include "buttons.h"
 #include "lcdmenu.h"
+#include "buzzer.h"
 
 //Máquina de estados
 enum State {
@@ -12,8 +13,6 @@ enum State {
     STATE_RUN};
 State currentState = STATE_MENU;                              //Estado inicial
 
-//Temperatura
-
 //LED
 const byte ledPin = A5;                                       //Pino do LED
 
@@ -22,6 +21,7 @@ void setup() {
   setupButtons();                                             //Função de setup dos botões
   setupMenu();                                                //Função de setup do lcd
   pinMode(ledPin, OUTPUT);                                    //Declaração do pino do led como saida
+  flagSelect = false;
 }
 
 void loop() {
@@ -29,29 +29,41 @@ void loop() {
 
   switch (currentState) {
     case STATE_MENU:
-      showMenu();
+      showMenu();                                             //Exibe texto no LCD (lcdMenu.cpp)
     break;
 
     case STATE_TIMER:
-      showTimer();
+      showTimer();                                            //Exibe texto no LCD (lcdMenu.cpp)
     break;
 
     case STATE_TEMPERATURE:
-      showTemp();
+      showTemp();                                             //Exibe texto no LCD (lcdMenu.cpp)
     break;
 
     case STATE_FAN:
-      showMenu();
+      showMenu();                                             //Exibe texto no LCD (lcdMenu.cpp)
     break;
 
     case STATE_SERIAL:
-      showSerial();
+      showSerial();                                           //Exibe texto no LCD (lcdMenu.cpp)
     break;
 
     case STATE_RUN:
-      digitalWrite(ledPin, HIGH);
-      TIMSK1 |= (1 << OCIE1A);                                //Set bit OCIE1A do registrador TIMSK1, inicializando a contagem do Timer 1
-      showRun();
+      if(countdownOver){
+        buzzerHandle();                                       //Ativa o buzzer (buzzer.cpp)
+        digitalWrite(ledPin, LOW);                            //Desliga o LED
+        showEnd();                                            //Exibe texto no LCD (lcdMenu.cpp)        
+      }
+      else if(!flagRun){
+        digitalWrite(ledPin, LOW);
+        TIMSK1 &= ~(1 << OCIE1A);                             //Reset bit OCIE1A do registrador TIMSK1, parando a contagem do Timer 1
+        showRun();                                            //Exibe texto no LCD (lcdMenu.cpp)
+      }
+      else{
+        digitalWrite(ledPin, HIGH);
+        TIMSK1 |= (1 << OCIE1A);                              //Set bit OCIE1A do registrador TIMSK1, inicializando a contagem do Timer 1
+        showRunning();                                        //Exibe texto no LCD (lcdMenu.cpp)
+      }
     break;
   }
 }
@@ -59,7 +71,7 @@ void loop() {
 void buttonsHandle(){
 //Controle do botão "UP"
   if(flagUp){
-    flagUp = false;
+    flagUp = false;                                           //Reseta a flag do botão
 
     if (currentState == STATE_MENU) {
       menuIndex++;
@@ -71,32 +83,32 @@ void buttonsHandle(){
       }
       else{
         setMinutes = 0;
-        if(setHours < 23){
+        if(setHours < 24){
           setHours++;
         }
         else{setHours = 0;}
       }
     }
     if (currentState == STATE_RUN) {
-
+      flagRun = !flagRun;
     }
   }
 
 //Controle do botão "SELECT"
   if(flagSelect){
-    flagSelect = false;
+    flagSelect = false;                                       //Reseta a flag do botão
 
     if(currentState == STATE_MENU){
       currentState = static_cast<State>(menuIndex + 1);
     }
     else if(currentState == STATE_TIMER){
-      setCountdown();
+      timerSetCountdown();                                         //Função que carrega o valor total do Timer1 (timer.cpp)
       currentState = STATE_MENU;
     }
-    else {currentState = STATE_MENU;} //Voltar pro menu de seleção
+    else {currentState = STATE_MENU;}                         //Voltar pro menu de seleção
   }
 
-//Controle do botão "DOWN"
+//Controle do botão "DOWN" NÃO FUNCIONAL
   if(flagDown){
     flagDown = false;
 

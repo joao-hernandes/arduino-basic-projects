@@ -4,6 +4,8 @@ volatile bool flagUp = false;
 volatile bool flagSelect = false;
 volatile bool flagDown = false;
 
+volatile bool flagRun = false;
+
 void setupButtons(){
 //Definir cada botão como entrada e resistor de pullup ligado
   pinMode(buttonUp, INPUT_PULLUP);
@@ -21,6 +23,7 @@ void setupButtons(){
   flagUp = false;
   flagSelect = false;
   flagDown = false;
+  flagRun = false;
 }
 
 ISR(INT0_vect){

@@ -1,4 +1,5 @@
 #include "timer.h"
+#include "buzzer.h"
 
 volatile byte hours = 0;
 volatile byte minutes = 0;
@@ -21,30 +22,42 @@ void setupTimer1(){
   TCCR1B |= (1 << WGM12);
   TCCR1B |= (1 << CS12);
   TCCR1B |= (1 << CS10);
-  TIMSK1 |= (1 << OCIE1A);
 
   interrupts();
 }
 
-void stopTimer1(){
-  TIMSK1 &= ~(1 << OCIE1A); // Disable Timer1 interrupt
+void timerStop(){
+  TIMSK1 &= ~(1 << OCIE1A); //Desabilia Timer1 interrupt
+  
 }
 
-void restartTimer1(){
-  TIMSK1 |= (1 << OCIE1A);
+void timerStart(){
+  TIMSK1 |= (1 << OCIE1A);  //Habilita Timer1
 }
 
-void setCountdown(){
-  hours = setHours;
+void timerSetCountdown(){
+  /*hours = setHours;
   minutes = setMinutes;
-  seconds = 0;
+  seconds = 0;*/
+
+  hours = 0;
+  minutes = setHours;
+  seconds = setMinutes;
+
+
   countdownOver = false;
+  buzzerBips = 0;
 }
 
 ISR(TIMER1_COMPA_vect) {
+  if(countdownOver == true){
+      buzzerBips++;
+      flagBips = !flagBips;
+    return;
+  }
+
   if(hours == 0 && minutes == 0 && seconds == 0){
     countdownOver = true;
-    stopTimer1();
     return;
   }
 

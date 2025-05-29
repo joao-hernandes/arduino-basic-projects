@@ -13,8 +13,8 @@ extern volatile byte setMinutes;
 extern volatile bool countdownOver;
 
 void setupTimer1();
-void stopTimer1();
-void restartTimer1();
-void setCountdown();
+void timerStop();
+void timerStart();
+void timerSetCountdown();
 
 #endif

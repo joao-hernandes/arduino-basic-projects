@@ -13,6 +13,9 @@ extern volatile bool flagUp;
 extern volatile bool flagSelect;
 extern volatile bool flagDown;
 
+//Flag para controle do Menu Run
+extern volatile bool flagRun;
+
 //Funções de Setup
 void setupButtons();
 void buttonsHandle();

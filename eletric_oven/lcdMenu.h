@@ -14,5 +14,7 @@ void showTimer();
 void showTemp();
 void showSerial();
 void showRun();
+void showEnd();
+void showRunning();
 
 #endif
