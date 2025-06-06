@@ -1,5 +1,6 @@
 #include "lcdMenu.h"
 #include "timer.h"
+#include "temperature.h"
 
 //LCD
 LiquidCrystal lcd(7, 8, 10, 11, 12, 13);
@@ -45,9 +46,10 @@ void showTimer(){
 
 void showTemp(){
   lcd.setCursor(0, 0);
-  lcd.print("Temperatura:     ");
+  lcd.print("Temperatura:");
   lcd.setCursor(0, 1);
-  lcd.print("                ");
+  lcd.print(temperature);
+  lcd.print("               ");
 }
 
 void showRun(){
@@ -55,6 +57,7 @@ void showRun(){
   lcd.print("DESLIGADO       ");
   lcd.setCursor(0, 1);
   lcd.print("Temp: ");
+  lcd.print(temperatureRead);
   lcd.print(" ");
   lcd.print(hours);
   lcd.print(":");
@@ -68,6 +71,7 @@ void showRunning(){
   lcd.print("LIGADO          ");
   lcd.setCursor(0, 1);
   lcd.print("Temp: ");
+  lcd.print(temperatureRead);
   lcd.print(" ");
   lcd.print(hours);
   lcd.print(":");
