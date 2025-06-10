@@ -1,17 +1,24 @@
 #include "timer.h"
 #include "buzzer.h"
+#include "buttons.h"
+#include "temperature.h"
+#include "control.h"
 
-volatile byte hours = 0;
-volatile byte minutes = 0;
-volatile byte seconds = 0;
+//Variaveis para o contador
+volatile byte timerHours = 0;
+volatile byte timerMinutes = 0;
+volatile byte timerSeconds = 0;
 
-volatile byte setHours = 0;
-volatile byte setMinutes = 0;
+volatile byte timerSetHours = 0;
+volatile byte timerSetMinutes = 0;
 
-volatile bool countdownOver = false;
+volatile bool flagCountdownOver = false;
+
+//Variavel para controle de tempo da leitura do sensor de temperatura
+volatile byte timerThermocouple = 0;
 
 void setupTimer1(){
-  noInterrupts();
+  noInterrupts();                                                   //Desabilita ocorrência de interrupções durante setup
 
   TCCR1A = 0;
   TCCR1B = 0;
@@ -19,20 +26,19 @@ void setupTimer1(){
   TCNT1 = 0;
   OCR1A = 15624;
 
-  TCCR1B |= (1 << WGM12);
-  TCCR1B |= (1 << CS12);
-  TCCR1B |= (1 << CS10);
+  TCCR1B |= (1 << WGM12);                                           //Habilita o modo de operação CTC (CLear timer on compare)
+  TCCR1B |= (1 << CS12);                                            //Set o bit CS12 do registrador TCCR1B
+  TCCR1B |= (1 << CS10);                                            //Set o bit CS10 do registrador TCCR1B selecionando pre scaler de 1024 para o timer 1 (Clock select bit)
 
-  interrupts();
+  interrupts();                                                     //Habilita interrupções
 }
 
 void timerStop(){
-  TIMSK1 &= ~(1 << OCIE1A); //Desabilia Timer1 interrupt
-  
+  TIMSK1 &= ~(1 << OCIE1A);                                         //Desabilita Timer1 interrupt
 }
 
 void timerStart(){
-  TIMSK1 |= (1 << OCIE1A);  //Habilita Timer1
+  TIMSK1 |= (1 << OCIE1A);                                          //Habilita Timer1
 }
 
 void timerSetCountdown(){
@@ -40,46 +46,53 @@ void timerSetCountdown(){
   minutes = setMinutes;
   seconds = 0;*/
 
-  hours = 0;
-  minutes = setHours;
-  seconds = setMinutes;
+  timerHours = 0;
+  timerMinutes = timerSetHours;
+  timerSeconds = timerSetMinutes;
 
 
-  countdownOver = false;
+  flagCountdownOver = false;
   buzzerBips = 0;
 }
 
 ISR(TIMER1_COMPA_vect) {
-  if(countdownOver == true){
-      buzzerBips++;
-      flagBips = !flagBips;
+  if(flagCountdownOver == true){                                    //Caso flag de contagem regressiva seja verdadeira
+      buzzerBips++;                                                 //Incrementa váriavel para quantidade de bips do buzzer
+      flagBipsBuzzer = !flagBipsBuzzer;                             //Inverte flag de acionamento do buzzer
     return;
   }
 
-  if(hours == 0 && minutes == 0 && seconds == 0){
-    countdownOver = true;
+  if(timerHours == 0 && timerMinutes == 0 && timerSeconds == 0){       
+    flagCountdownOver = true;                                       //Habilita flag para fim da contagem
     return;
   }
 
-  if(seconds > 0){
-      seconds--;
+  if(timerSeconds > 0){
+      timerSeconds--;
   } 
   else{
-    seconds = 59;
-    if(minutes > 0){
-        minutes--;
+    timerSeconds = 59;
+    if(timerMinutes > 0){
+        timerMinutes--;
     } 
     else {
-      minutes = 59;
-      if (hours > 0) {
-        hours--;
+      timerMinutes = 59;
+      if (timerHours > 0) {
+        timerHours--;
       } 
-      else {
-        // Timer reached 00:00:00
-        hours = 0;
-        minutes = 0;
-        seconds = 0;
+      else {                                                        //Timer1 chegou a 00:00:00
+        timerHours = 0;
+        timerMinutes = 0;
+        timerSeconds = 0;
       }
     }
   }
+
+  timerThermocouple++;
+  if(flagRun && timerThermocouple >= 5){                            //Caso estaja no RUN e tenha contado 5 estouros do timer 1, faça
+    timerThermocouple = 0;                                          //Zera a contagem de estouros
+    thermocoupleFlag = true;                                        //Habilita a flag para medição do sensor de temperatura
+  }
+
+  flagControl = true;
 }

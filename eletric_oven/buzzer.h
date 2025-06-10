@@ -8,7 +8,7 @@ const byte buzzerPin = A4;
 volatile extern byte buzzerBips;
 
 volatile extern bool flagBuzzer;
-volatile extern bool flagBips;
+volatile extern bool flagBipsBuzzer;
 
 void setupBuzzer();
 void buzzerHandle();

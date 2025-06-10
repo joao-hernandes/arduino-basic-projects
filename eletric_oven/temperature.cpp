@@ -1,8 +1,8 @@
 #include "temperature.h"
 
-volatile byte temperature = 0;
-volatile byte temperatureSetPoint = 0;
-volatile byte temperatureError = 0;
+volatile float temperature = 0;
+volatile float temperatureSetPoint = 0;
+volatile float temperatureError = 0;
 
 //Variaveis para leitura da temperatura
 float temperatureAdcRead = 0;
@@ -14,7 +14,6 @@ float temperatureRead = 0;
 volatile bool thermocoupleFlag = false;
 
 void setupTemperature(){
-  pinMode(relayPin, OUTPUT);
   pinMode(thermocouplePin, INPUT);
 }
 //Define a temperatura obejtivo
@@ -23,16 +22,19 @@ void temperatureSet(){
 }
 //Lê a temperatura real
 void thermocoupleRead(){
-  for(byte i = 0; i < 5; i++){                                                                          //Afere a temperatura 5 vezes
+  temperatureAdcRead = 0;
+
+  for(byte i = 0; i < 5; i++){                                                                          //Mede a temperatura 5 vezes
     temperatureAdcRead += analogRead(thermocouplePin);                                                  //Soma as 5 leituras na mesma variavel
   }
   float media = temperatureAdcRead/5;                                                                   //Temperatura lida é a média das 5 leituras
-  temperatureVoltage = media * (5.0/1023.0);                                                            //5V tensão de alimentação do arduino, dividido por 1023 que é a resolução de leitura do pino analógico, multiplicado pelo valor lido no pino A0
-  temperatureResistance = 10000.0 * (5.0/temperatureVoltage - 1.0);                                     //
-  temperatureKelvin = 1.0 / ( (1.0 / 298.15) + (1.0 / 3950) * log(temperatureResistance / 10000.0) );
-  temperatureRead = temperatureKelvin - 273.15;
+  temperatureVoltage = media * (5.0/1023.0);                                                            //Converte ADC para tensão
+  temperatureResistance = 10000.0 * (5.0/temperatureVoltage - 1.0);                                     //Calcula a resistência do thermistor
+  temperatureKelvin = 1.0 / ( (1.0 / 298.15) + (1.0 / 3950) * log(temperatureResistance / 10000.0) );   //Equação do parâmetro Beta
+  temperatureRead = temperatureKelvin - 273.15;                                                         //Converte de Kelvin para Celsius
 }
-//Gera o erro entre as temperaturas
-void temperatureCycle(){
+
+void temperatureGetError(){
   temperatureError = temperatureSetPoint - temperatureRead;                                             //Compara a temperatura definida pelo usuário e a lida, gerando o erro entre elas
+  Serial.println(temperatureError);
 }

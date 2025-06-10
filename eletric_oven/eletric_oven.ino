@@ -3,6 +3,7 @@
 #include "lcdmenu.h"
 #include "temperature.h"
 #include "buzzer.h"
+#include "control.h"
 
 //Máquina de estados
 enum State {
@@ -21,7 +22,8 @@ void setup() {
   setupTimer1();                                              //Função de Setup do Timer 1
   setupButtons();                                             //Função de setup dos botões
   setupMenu();                                                //Função de setup do lcd
-  setupTemperature();                                         //Função de setup do Relay
+  setupTemperature();                                         //Função de setup do Sensor de temperatura
+  setupControl();                                             //Função de setup do Relay
   pinMode(ledPin, OUTPUT);                                    //Declaração do pino do led como saida
   flagSelect = false;                                         //Corrigir problema com a flag estando ativa ao iniciar o código
 }
@@ -51,26 +53,35 @@ void loop() {
     break;
 
     case STATE_RUN:
-      if(countdownOver){
+      if(flagCountdownOver){
         buzzerHandle();                                       //Ativa o buzzer (buzzer.cpp)
         digitalWrite(ledPin, LOW);                            //Desliga o LED
         showEnd();                                            //Exibe texto no LCD (lcdMenu.cpp)        
       }
       else if(!flagRun){                                      //Caso flag run seja falsa
-        digitalWrite(ledPin, LOW);                            //Desliga o LED
-        TIMSK1 &= ~(1 << OCIE1A);                             //Reset bit OCIE1A do registrador TIMSK1, parando a contagem do Timer 1
+        peripheralsStop();                                    //Para o funcionamento de todos os perifericos
         showRun();                                            //Exibe texto no LCD (lcdMenu.cpp)
       }
       else{                                                   //Caso a flag run seja verdadeira
         digitalWrite(ledPin, HIGH);                           //Liga o LED
         TIMSK1 |= (1 << OCIE1A);                              //Set bit OCIE1A do registrador TIMSK1, inicializando a contagem do Timer 1
         if(thermocoupleFlag){                                 //Caso a flag do sensor de temperatura seja verdadeira
+          thermocoupleFlag = false;                           //Limpa a flag
           thermocoupleRead();                                 //Função para ler o sensor (temperature.cpp)
+          temperatureGetError();                              //Função para gerar o erro entre temperaturas
         }
+        controlRelay();                                       //Define o tempo em que o relay ficara ligado
         showRunning();                                        //Exibe texto no LCD (lcdMenu.cpp)
       }
     break;
   }
+}
+
+void peripheralsStop(){
+  TIMSK1 &= ~(1 << OCIE1A);                                   //Reset bit OCIE1A do registrador TIMSK1, parando a contagem do Timer 1
+  digitalWrite(ledPin, LOW);                                  //Desliga o LED
+  digitalWrite(relayPin, HIGH);                               //Desliga o relé
+  noTone(buzzerPin);                                          //Desliga o buzzer
 }
 
 void buttonsHandle(){
@@ -83,15 +94,15 @@ void buttonsHandle(){
         if (menuIndex >= menuQnt) menuIndex = 0;              //Se o valor do index do menu for maior ou igual a quantidade de itens no menu, zera o index
     }
     if(currentState == STATE_TIMER){
-      if(setMinutes < 50){
-        setMinutes += 10;
+      if(timerSetMinutes < 50){
+        timerSetMinutes += 10;
       }
       else{
-        setMinutes = 0;
-        if(setHours < 24){
-          setHours++;
+        timerSetMinutes = 0;
+        if(timerSetHours < 24){
+          timerSetHours++;
         }
-        else{setHours = 0;}
+        else{timerSetHours = 0;}
       }
     }
     if(currentState == STATE_TEMPERATURE){
@@ -115,8 +126,8 @@ void buttonsHandle(){
     else if(currentState == STATE_TIMER){
       timerSetCountdown();                                    //Função que carrega o valor total do Timer1 (timer.cpp)
       currentState = STATE_MENU;
-      setHours = 0;
-      setMinutes = 0;
+      timerSetHours = 0;
+      timerSetMinutes = 0;
     }
     else if(currentState == STATE_TEMPERATURE){
       temperatureSet();

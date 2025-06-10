@@ -4,11 +4,10 @@
 #include <Arduino.h>
 
 const byte thermocouplePin = A2;                    //Pino do sensor de temperatura
-const byte relayPin = A0;                           //Pino do relay
 
 //Variaveis para seleção de temperatura
-volatile extern byte temperature;
-volatile extern byte temperatureSetPoint;
+volatile extern float temperature;
+volatile extern float temperatureSetPoint;
 
 //Variaveis para o sensor
 extern float temperatureAdcRead;
@@ -18,14 +17,14 @@ extern float temperatureKelvin;
 extern float temperatureRead;
 volatile extern bool thermocoupleFlag;
 
-volatile extern byte temperatureError;
+volatile extern float temperatureError;
 
 void setupTemperature();
 void temperatureSet();
-void temperatureCycle();
 
 //Funções para o sensor
 void setupThermocouple();
 void thermocoupleRead();
+void temperatureGetError();
 
 #endif

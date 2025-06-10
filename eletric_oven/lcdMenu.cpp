@@ -35,8 +35,8 @@ void showTimer(){
   lcd.print("Selecione o temp");
   lcd.setCursor(0, 1);
 
-  byte h = setHours;
-  byte m = setMinutes;
+  byte h = timerSetHours;
+  byte m = timerSetMinutes;
 
   lcd.print(h);
   lcd.print(":");
@@ -56,28 +56,26 @@ void showRun(){
   lcd.setCursor(0, 0);
   lcd.print("DESLIGADO       ");
   lcd.setCursor(0, 1);
-  lcd.print("Temp: ");
   lcd.print(temperatureRead);
   lcd.print(" ");
-  lcd.print(hours);
+  lcd.print(timerHours);
   lcd.print(":");
-  lcd.print(minutes);
+  lcd.print(timerMinutes);
   lcd.print(":");
-  lcd.print(seconds);
+  lcd.print(timerSeconds);
 }
 
 void showRunning(){
   lcd.setCursor(0, 0);
   lcd.print("LIGADO          ");
   lcd.setCursor(0, 1);
-  lcd.print("Temp: ");
   lcd.print(temperatureRead);
   lcd.print(" ");
-  lcd.print(hours);
+  lcd.print(timerHours);
   lcd.print(":");
-  lcd.print(minutes);
+  lcd.print(timerMinutes);
   lcd.print(":");
-  lcd.print(seconds);
+  lcd.print(timerSeconds);
   lcd.print("                ");
 }
 
