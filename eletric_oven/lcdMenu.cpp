@@ -31,55 +31,60 @@ void showMenu(){
 }
 
 void showTimer(){
+  char timeBuffer[9];
+
   lcd.setCursor(0, 0);
   lcd.print("Selecione o temp");
+
   lcd.setCursor(0, 1);
-
-  byte h = timerSetHours;
-  byte m = timerSetMinutes;
-
-  lcd.print(h);
-  lcd.print(":");
-  lcd.print(m);
-  lcd.print(":00           ");
+  sprintf(timeBuffer, "%02d:%02d:00", timerSetHours, timerSetMinutes);
+  lcd.print(timeBuffer);
+  lcd.print("         ");
 }
 
 void showTemp(){
   lcd.setCursor(0, 0);
   lcd.print("Temperatura:");
   lcd.setCursor(0, 1);
-  lcd.print(temperature);
+  lcd.print(temperatureSetPoint);
+  lcd.write(byte(223));
   lcd.print("               ");
 }
 
 void showRun(){
+  char timeBuffer[9];
+
   lcd.setCursor(0, 0);
   lcd.print("DESLIGADO       ");
+
   lcd.setCursor(0, 1);
   lcd.print(temperatureRead);
+  lcd.write(byte(223));
   lcd.print(" ");
-  lcd.print(timerHours);
-  lcd.print(":");
-  lcd.print(timerMinutes);
-  lcd.print(":");
-  lcd.print(timerSeconds);
+
+  sprintf(timeBuffer, "%02d:%02d:%02d", timerHours, timerMinutes, timerSeconds);
+  lcd.print(timeBuffer);
+  lcd.print("       ");
 }
 
 void showRunning(){
+  char timeBuffer[9];
+
   lcd.setCursor(0, 0);
   lcd.print("LIGADO          ");
+
   lcd.setCursor(0, 1);
   lcd.print(temperatureRead);
+  lcd.write(byte(223));
   lcd.print(" ");
-  lcd.print(timerHours);
-  lcd.print(":");
-  lcd.print(timerMinutes);
-  lcd.print(":");
-  lcd.print(timerSeconds);
+
+  sprintf(timeBuffer, "%02d:%02d:%02d", timerHours, timerMinutes, timerSeconds);
+  lcd.print(timeBuffer);
   lcd.print("                ");
 }
 
 void showEnd(){
+  lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("ALIMENTO PRONTO");
   lcd.setCursor(0, 1);
@@ -87,5 +92,6 @@ void showEnd(){
 }
 
 void showSerial(){
-
+  lcd.setCursor(0, 0);
+  lcd.print("Serial");
 }

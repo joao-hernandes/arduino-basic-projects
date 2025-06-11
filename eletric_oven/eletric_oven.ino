@@ -30,6 +30,7 @@ void setup() {
 
 void loop() {
   buttonsHandle();                                            //Função que checa flag dos botões e realiza funções especificas para cada menu
+  controlHandle();
 
   switch (currentState) {
     case STATE_MENU:
@@ -39,7 +40,7 @@ void loop() {
     case STATE_TIMER:
       showTimer();                                            //Exibe texto no LCD (lcdMenu.cpp)
     break;
-
+    
     case STATE_TEMPERATURE:
       showTemp();                                             //Exibe texto no LCD (lcdMenu.cpp)
     break;
@@ -53,35 +54,14 @@ void loop() {
     break;
 
     case STATE_RUN:
-      if(flagCountdownOver){
-        buzzerHandle();                                       //Ativa o buzzer (buzzer.cpp)
-        digitalWrite(ledPin, LOW);                            //Desliga o LED
-        showEnd();                                            //Exibe texto no LCD (lcdMenu.cpp)        
-      }
-      else if(!flagRun){                                      //Caso flag run seja falsa
-        peripheralsStop();                                    //Para o funcionamento de todos os perifericos
+      if(!flagRun){
         showRun();                                            //Exibe texto no LCD (lcdMenu.cpp)
       }
-      else{                                                   //Caso a flag run seja verdadeira
-        digitalWrite(ledPin, HIGH);                           //Liga o LED
-        TIMSK1 |= (1 << OCIE1A);                              //Set bit OCIE1A do registrador TIMSK1, inicializando a contagem do Timer 1
-        if(thermocoupleFlag){                                 //Caso a flag do sensor de temperatura seja verdadeira
-          thermocoupleFlag = false;                           //Limpa a flag
-          thermocoupleRead();                                 //Função para ler o sensor (temperature.cpp)
-          temperatureGetError();                              //Função para gerar o erro entre temperaturas
-        }
-        controlRelay();                                       //Define o tempo em que o relay ficara ligado
+      else{    
         showRunning();                                        //Exibe texto no LCD (lcdMenu.cpp)
       }
     break;
   }
-}
-
-void peripheralsStop(){
-  TIMSK1 &= ~(1 << OCIE1A);                                   //Reset bit OCIE1A do registrador TIMSK1, parando a contagem do Timer 1
-  digitalWrite(ledPin, LOW);                                  //Desliga o LED
-  digitalWrite(relayPin, HIGH);                               //Desliga o relé
-  noTone(buzzerPin);                                          //Desliga o buzzer
 }
 
 void buttonsHandle(){
@@ -106,10 +86,10 @@ void buttonsHandle(){
       }
     }
     if(currentState == STATE_TEMPERATURE){
-      if(temperature < 250){
-        temperature += 5;
+      if(temperatureSetPoint < 250){
+        temperatureSetPoint += 5;
       }
-      else{temperature = 0;}
+      else{temperatureSetPoint = 0;}
     }
     if (currentState == STATE_RUN) {
       flagRun = !flagRun;
@@ -128,11 +108,6 @@ void buttonsHandle(){
       currentState = STATE_MENU;
       timerSetHours = 0;
       timerSetMinutes = 0;
-    }
-    else if(currentState == STATE_TEMPERATURE){
-      temperatureSet();
-      currentState = STATE_MENU;
-      temperature = 0;
     }
     else {currentState = STATE_MENU;}                         //Voltar pro menu de seleção
   }

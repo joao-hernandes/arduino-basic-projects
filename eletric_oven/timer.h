@@ -11,6 +11,7 @@ extern volatile byte timerSetHours;
 extern volatile byte timerSetMinutes;
 
 extern volatile bool flagCountdownOver;
+extern volatile bool flagCountdownActive;
 
 volatile extern byte timerThermocouple;
 

@@ -13,6 +13,7 @@ volatile byte timerSetHours = 0;
 volatile byte timerSetMinutes = 0;
 
 volatile bool flagCountdownOver = false;
+volatile bool flagCountdownActive = false;
 
 //Variavel para controle de tempo da leitura do sensor de temperatura
 volatile byte timerThermocouple = 0;
@@ -42,9 +43,9 @@ void timerStart(){
 }
 
 void timerSetCountdown(){
-  /*hours = setHours;
-  minutes = setMinutes;
-  seconds = 0;*/
+  /*timerHours = timerSetHours;
+  timerMinutes = timerSetMinutes;
+  timerSeconds = 0;*/
 
   timerHours = 0;
   timerMinutes = timerSetHours;
@@ -52,6 +53,7 @@ void timerSetCountdown(){
 
 
   flagCountdownOver = false;
+  flagCountdownActive = true;
   buzzerBips = 0;
 }
 
@@ -62,10 +64,14 @@ ISR(TIMER1_COMPA_vect) {
     return;
   }
 
-  if(timerHours == 0 && timerMinutes == 0 && timerSeconds == 0){       
-    flagCountdownOver = true;                                       //Habilita flag para fim da contagem
-    return;
+  if(flagCountdownActive){
+    if(timerHours == 0 && timerMinutes == 0 && timerSeconds == 0){       
+      flagCountdownOver = true;                                       //Habilita flag para fim da contagem
+      flagCountdownActive = false;
+      return;
+    }
   }
+
 
   if(timerSeconds > 0){
       timerSeconds--;

@@ -6,7 +6,6 @@
 const byte thermocouplePin = A2;                    //Pino do sensor de temperatura
 
 //Variaveis para seleção de temperatura
-volatile extern float temperature;
 volatile extern float temperatureSetPoint;
 
 //Variaveis para o sensor
@@ -20,7 +19,6 @@ volatile extern bool thermocoupleFlag;
 volatile extern float temperatureError;
 
 void setupTemperature();
-void temperatureSet();
 
 //Funções para o sensor
 void setupThermocouple();

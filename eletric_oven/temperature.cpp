@@ -1,6 +1,5 @@
 #include "temperature.h"
 
-volatile float temperature = 0;
 volatile float temperatureSetPoint = 0;
 volatile float temperatureError = 0;
 
@@ -16,10 +15,7 @@ volatile bool thermocoupleFlag = false;
 void setupTemperature(){
   pinMode(thermocouplePin, INPUT);
 }
-//Define a temperatura obejtivo
-void temperatureSet(){
-  temperatureSetPoint = temperature;
-}
+
 //Lê a temperatura real
 void thermocoupleRead(){
   temperatureAdcRead = 0;
