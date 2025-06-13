@@ -3,19 +3,21 @@
 
 #include <Arduino.h>
 
-const byte relayPin = A0;                         //Pino do relay
+extern const uint8_t relayPin;                         //Pino do relay
+extern const uint8_t ledPin;
 
 extern bool firstStopRun;
 extern bool firstRun;
 
 volatile extern bool flagControl;
 
-extern byte controlCounter;
-extern byte controlRelayTime;
+extern uint8_t controlCounter;
+extern uint8_t controlRelayTime;
 
 void setupControl();
 void controlRelay();
 void controlHandle();
 void peripheralsStop();
+void controlStop();
 
 #endif

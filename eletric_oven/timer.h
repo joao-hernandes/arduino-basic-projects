@@ -3,17 +3,17 @@
 
 #include <Arduino.h>
 
-volatile extern byte timerHours;
-volatile extern byte timerMinutes;
-volatile extern byte timerSeconds;
+volatile extern uint8_t timerHours;
+volatile extern uint8_t timerMinutes;
+volatile extern uint8_t timerSeconds;
 
-extern volatile byte timerSetHours;
-extern volatile byte timerSetMinutes;
+extern volatile uint8_t timerSetHours;
+extern volatile uint8_t timerSetMinutes;
 
 extern volatile bool flagCountdownOver;
 extern volatile bool flagCountdownActive;
 
-volatile extern byte timerThermocouple;
+volatile extern uint8_t timerThermocouple;
 
 void setupTimer1();
 void timerStop();

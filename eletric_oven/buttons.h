@@ -4,9 +4,9 @@
 #include <Arduino.h>
 
 //Pino dos botões
-const byte buttonUp = 2;
-const byte buttonSelect = 3;
-const byte buttonDown = 4;
+const uint8_t buttonUp = 2;
+const uint8_t buttonSelect = 3;
+const uint8_t buttonDown = 4;
 
 //Flag para controle de interrupção
 extern volatile bool flagUp;

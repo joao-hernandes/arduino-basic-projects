@@ -27,11 +27,18 @@ void setupButtons(){
 }
 
 ISR(INT0_vect){
-  flagUp = true;
+  static unsigned long last_interrupt = 0;
+  if(millis() - last_interrupt > 65){
+    flagUp = true;
+  }
+  last_interrupt = millis();
 }
 
 ISR(INT1_vect){
-  flagSelect = true;
+  static unsigned long last_interrupt = 0;
+  if(millis() - last_interrupt > 65){
+    flagSelect = true;
+  }
 }
 
 void downISR(){

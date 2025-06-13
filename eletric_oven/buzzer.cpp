@@ -1,9 +1,10 @@
 #include "buzzer.h"
 #include "timer.h"
+#include "Arduino.h"
 
 volatile bool flagBuzzer = false;
 volatile bool flagBipsBuzzer = false;
-volatile byte buzzerBips = 0;
+volatile uint8_t buzzerBips = 0;
 
 void setupBuzzer(){
   pinMode(buzzerPin, OUTPUT);                   //Declara o pino (perna maior) do buzzer como saida

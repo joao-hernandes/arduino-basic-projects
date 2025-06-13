@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-const byte buzzerPin = A4;
+const uint8_t buzzerPin = A4;
 
-volatile extern byte buzzerBips;
+volatile extern uint8_t buzzerBips;
 
 volatile extern bool flagBuzzer;
 volatile extern bool flagBipsBuzzer;

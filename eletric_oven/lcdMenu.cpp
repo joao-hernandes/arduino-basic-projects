@@ -6,14 +6,14 @@
 LiquidCrystal lcd(7, 8, 10, 11, 12, 13);
 
 //Menu
-byte menuIndex = 0;
+uint8_t menuIndex = 0;
 const char* menuItems[] = {
   "1 - Temporizador",
   "2 - Temperatura ",
   "3 - Ventilador  ",
   "4 - Serial      ",
   "5 - Iniciar     "};
-const byte menuQnt = sizeof(menuItems)/sizeof(menuItems[0]);
+const uint8_t menuQnt = sizeof(menuItems)/sizeof(menuItems[0]);
 
 void setupMenu(){
   lcd.begin(16, 2);
@@ -84,9 +84,8 @@ void showRunning(){
 }
 
 void showEnd(){
-  lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("ALIMENTO PRONTO");
+  lcd.print("ALIMENTO PRONTO ");
   lcd.setCursor(0, 1);
   lcd.print("   APROVEITE!   ");
 }
@@ -94,4 +93,15 @@ void showEnd(){
 void showSerial(){
   lcd.setCursor(0, 0);
   lcd.print("Serial");
+  static unsigned long lastSerial = 0;
+  if(millis() - lastSerial >= 1000){ 
+  Serial.print(temperatureRead);
+  Serial.print("    ");
+  Serial.print(timerHours);
+  Serial.print(":");
+  Serial.print(timerMinutes);
+  Serial.print(":");
+  Serial.print(timerSeconds);
+  }
+  lastSerial = millis();
 }

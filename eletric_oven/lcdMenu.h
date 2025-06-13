@@ -4,9 +4,9 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 
-extern byte menuIndex;
+extern uint8_t menuIndex;
 extern const char* menuItems[];
-extern const byte menuQnt;
+extern const uint8_t menuQnt;
 
 void setupMenu();
 void showMenu();

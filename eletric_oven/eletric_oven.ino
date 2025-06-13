@@ -1,3 +1,6 @@
+#include <stdint.h>
+#include <avr/wdt.h>
+#include "eletric_oven.h"
 #include "timer.h"
 #include "buttons.h"
 #include "lcdmenu.h"
@@ -5,32 +8,26 @@
 #include "buzzer.h"
 #include "control.h"
 
-//Máquina de estados
-enum State {
-    STATE_MENU,
-    STATE_TIMER,
-    STATE_TEMPERATURE,
-    STATE_FAN,
-    STATE_SERIAL,
-    STATE_RUN};
-State currentState = STATE_MENU;                              //Estado inicial
-
-//LED
-const byte ledPin = A5;                                       //Pino do LED
+State currentState = STATE_MENU;
 
 void setup() {
+  wdt_enable(WDTO_4S);                                        //Habilitar watchdog para reset em 4 segundos
+  Serial.begin(9600);
   setupTimer1();                                              //Função de Setup do Timer 1
   setupButtons();                                             //Função de setup dos botões
   setupMenu();                                                //Função de setup do lcd
   setupTemperature();                                         //Função de setup do Sensor de temperatura
   setupControl();                                             //Função de setup do Relay
-  pinMode(ledPin, OUTPUT);                                    //Declaração do pino do led como saida
   flagSelect = false;                                         //Corrigir problema com a flag estando ativa ao iniciar o código
 }
 
 void loop() {
+  wdt_reset();                                                //Reseta o watchdog
   buttonsHandle();                                            //Função que checa flag dos botões e realiza funções especificas para cada menu
   controlHandle();
+  if(flagCountdownOver == true){
+    currentState = STATE_END;
+  }
 
   switch (currentState) {
     case STATE_MENU:
@@ -60,6 +57,10 @@ void loop() {
       else{    
         showRunning();                                        //Exibe texto no LCD (lcdMenu.cpp)
       }
+    break;
+
+    case STATE_END:
+      controlStop();
     break;
   }
 }
@@ -92,6 +93,9 @@ void buttonsHandle(){
       else{temperatureSetPoint = 0;}
     }
     if (currentState == STATE_RUN) {
+      if(timerHours == 0 && timerMinutes == 0 && timerSeconds == 0){
+        return;
+      }
       flagRun = !flagRun;
     }
   }

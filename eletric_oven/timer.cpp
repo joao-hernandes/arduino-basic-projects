@@ -5,18 +5,18 @@
 #include "control.h"
 
 //Variaveis para o contador
-volatile byte timerHours = 0;
-volatile byte timerMinutes = 0;
-volatile byte timerSeconds = 0;
+volatile uint8_t timerHours = 0;
+volatile uint8_t timerMinutes = 0;
+volatile uint8_t timerSeconds = 0;
 
-volatile byte timerSetHours = 0;
-volatile byte timerSetMinutes = 0;
+volatile uint8_t timerSetHours = 0;
+volatile uint8_t timerSetMinutes = 0;
 
 volatile bool flagCountdownOver = false;
 volatile bool flagCountdownActive = false;
 
 //Variavel para controle de tempo da leitura do sensor de temperatura
-volatile byte timerThermocouple = 0;
+volatile uint8_t timerThermocouple = 0;
 
 void setupTimer1(){
   noInterrupts();                                                   //Desabilita ocorrência de interrupções durante setup
@@ -66,12 +66,11 @@ ISR(TIMER1_COMPA_vect) {
 
   if(flagCountdownActive){
     if(timerHours == 0 && timerMinutes == 0 && timerSeconds == 0){       
-      flagCountdownOver = true;                                       //Habilita flag para fim da contagem
+      flagCountdownOver = true;                                     //Habilita flag para fim da contagem
       flagCountdownActive = false;
       return;
     }
   }
-
 
   if(timerSeconds > 0){
       timerSeconds--;

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-const byte thermocouplePin = A2;                    //Pino do sensor de temperatura
+const uint8_t thermocouplePin = A2;                    //Pino do sensor de temperatura
 
 //Variaveis para seleção de temperatura
 volatile extern float temperatureSetPoint;
